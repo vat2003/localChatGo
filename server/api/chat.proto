@@ -1,0 +1,35 @@
+syntax = "proto3";
+package chat;
+
+// chỉnh go_package theo module của bạn
+option go_package = "github.com/you/chatpoc/server/api;api";
+
+message JoinRequest {
+  string room_id = 1;
+  string user_id = 2;
+  int64 since_seq = 3; // 0 = nhận tất cả history (giới hạn bởi server)
+}
+
+message SendRequest {
+  string room_id = 1;
+  string user_id = 2;
+  string type = 3;       // "user_message" | "system_error" | "notice"
+  string text = 4;       // nội dung text
+  string payload_json = 5;// metadata JSON (tùy chọn)
+}
+
+message Event {
+  string room_id = 1;
+  string id = 2;        // UUID (server tạo)
+  int64  seq = 3;       // seq tăng theo room
+  string type = 4;
+  string user_id = 5;
+  string text = 6;
+  string payload_json = 7;
+  int64  created_at_ms = 8;
+}
+
+service ChatService {
+  rpc Join(JoinRequest) returns (stream Event);
+  rpc Send(SendRequest) returns (Event);
+}
